@@ -27,10 +27,9 @@ def rgb_from_imgmsg(msg):
 def callback(data):
     cv2.namedWindow("ArduCam Demo",1)
     image = bgr_from_imgmsg(data)
+    image = cv2.resize(image, (640, 480), interpolation=cv2.INTER_LINEAR)
     cv2.imshow("ArduCam Demo",image)
     cv2.waitKey(10)
-    
-    #rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
     
 def listener(index):
 
@@ -42,7 +41,7 @@ def listener(index):
     
     rospy.init_node('listener', anonymous=True)
 
-    rospy.Subscriber("/cam{}/arducam/camera/image_raw".format(index), Image, callback)
+    rospy.Subscriber("/stereo_vision/left/image_raw".format(index), Image, callback)
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()

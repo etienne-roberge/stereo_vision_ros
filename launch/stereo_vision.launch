@@ -1,0 +1,16 @@
+<launch>
+
+    <group ns="stereo_vision" clear_params="true">
+        <arg name="camera_config" value="OV5647_MIPI_2Lane_RAW8_8b_2592x1944_AB.cfg" /> <!-- Config file in camera_config_files folder of your camera. -->
+        <arg name="calibration_left" default="left_cam.yaml" />
+        <arg name="calibration_right" default="right_cam.yaml" />
+
+
+        <node name="stereo_vision_node" pkg="stereo_vision_ros" type="stereo_vision_node.py" output="screen">
+            <param name="config_file" value="$(find stereo_vision_ros)/camera_config_files/$(arg camera_config)" />
+            <param name="calibration_left" value="$(find stereo_vision_ros)/calib/$(arg calibration_left)" />
+            <param name="calibration_right" value="$(find stereo_vision_ros)/calib/$(arg calibration_right)" />
+        </node>
+    </group>
+
+</launch>

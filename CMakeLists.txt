@@ -3,7 +3,11 @@ project(stereo_vision_ros)
 
 find_package(catkin REQUIRED COMPONENTS
   rospy
+  camera_info_manager_py
+  sensor_msgs
   message_generation
+  cv_bridge
+  image_proc
   std_msgs
 )
 

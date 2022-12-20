@@ -4,7 +4,7 @@
   <version>1.0.0</version>
   <description>The stereo_vision_ros package</description>
 
-  <maintainer email="etienne.roberge.1@ens.etsmtl.ca">EH Ong</maintainer>
+  <maintainer email="etienne.roberge.1@ens.etsmtl.ca">Etienne Roberge</maintainer>
 
   <license>BSD</license>
 
@@ -15,6 +15,12 @@
   <build_depend>rospy</build_depend>
   <build_export_depend>rospy</build_export_depend>
   <exec_depend>rospy</exec_depend>
+
+  <exec_depend>camera_info_manager_py</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>image_proc</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+
 
 
   <!-- The export tag contains other, unspecified, tags -->
