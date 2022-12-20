@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import rospy
-import rosbag, sys, yaml, os, cv2
-import numpy as np
+import rosbag, cv2
 from sensor_msgs.msg import CompressedImage, Image
-from std_msgs.msg import String
 import sys
 
 class ImageConversions():

@@ -6,15 +6,13 @@ from sensor_msgs.msg import CameraInfo, Image
 from camera_info_manager import CameraInfoManager
 from cv_bridge import CvBridge, CvBridgeError
 import time
+import threading
 
 import tf
 
 from arducam_manager import ArducamManager
 
-CAMERA_NAME = 'sdfsdf'
-DEFAULT_IMAGE_TOPIC = 'image_raw'
-DEFAULT_CAMERA_TOPIC = 'camera_info'
-
+CAMERA_NAME = 'stereo_vision_camera'
 
 class StereoVisionNode:
 
@@ -61,8 +59,11 @@ class StereoVisionNode:
         self.seq = 0
         self.stereo_cam.startCapture()
 
-    def readImages(self, br):
+        self.checkCameraStatusThread = threading.Thread(target=self.checkCameraStatus)
+        self.checkCameraStatusThreadRunning = True
+        self.checkCameraStatusThread.start()
 
+    def readImages(self, br):
         # Read image from camera
         img_left, img_right = self.stereo_cam.readImages()
 
@@ -81,13 +82,13 @@ class StereoVisionNode:
                               self.camera_info_right,
                               self.seq,
                               timeNow)
+            #transformation bidon
             br.sendTransform((5.0, 5.0, 5.0),
                              (0.0, 0.0, 0.0, 1.0),
                              rospy.Time.now(),
-                             "camera_etienne",
+                             "stereo_vision_frame",
                              "world")
             self.seq += 1
-        self.printFps()
 
     def publishImage(self, img_publisher, info_publisher, image, info, seq, timeNow):
         image_msg = self.bridge.cv2_to_imgmsg(image, encoding="bgr8")
@@ -95,22 +96,30 @@ class StereoVisionNode:
         # Add timestamp and sequence number (empty by default)
         image_msg.header.stamp = timeNow
         image_msg.header.seq = seq
-        image_msg.header.frame_id = "camera_etienne"
+        image_msg.header.frame_id = "stereo_vision_frame"
         img_publisher.publish(image_msg)
 
         camera_msg = info
         camera_msg.header = image_msg.header  # Copy header from image message
         info_publisher.publish(camera_msg)
 
+    def checkCameraStatus(self):
+        while self.checkCameraStatusThreadRunning:
+            self.timeFpsNow = time.time()
+            if self.timeFpsNow - self.timeFpsStart >= 3:  # print every second
+                fps = (self.seq - self.seqFps) / 3
+                if fps == 0:
+                    rospy.logerr("No data received from camera!")
+                elif fps < 5:
+                    rospy.logwarn("FPS is lower than 5...")
+                self.seqFps = self.seq
+                self.timeFpsStart = self.timeFpsNow
 
-    def printFps(self):
-        self.timeFpsNow = time.time()
-        if self.timeFpsNow - self.timeFpsStart >= 1:  # print every second
-            print("%s %d %s" % ("fps:", self.seq - self.seqFps, "/s"))
-            self.seqFps = self.seq
-            self.timeFpsStart = self.timeFpsNow
+        self.checkCameraStatusThreadRunning = False
 
     def closeNode(self):
+        self.checkCameraStatusThreadRunning = False
+        self.checkCameraStatusThread.join()
         self.stereo_cam.shutdown()
 
 
