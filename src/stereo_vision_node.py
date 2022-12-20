@@ -11,6 +11,7 @@ import threading
 import tf
 
 from arducam_manager import ArducamManager
+from stereo_vision_ros.srv import ChangeModality, ChangeModalityResponse
 
 CAMERA_NAME = 'stereo_vision_camera'
 
@@ -55,6 +56,8 @@ class StereoVisionNode:
                                                       queue_size=1)
         self.camera_publisher_left = rospy.Publisher("left/camera_info", CameraInfo,
                                                      queue_size=1)
+
+        self.service_change_modality = rospy.Service('change_modality', ChangeModality, self.change_modality)
 
         self.seq = 0
         self.stereo_cam.startCapture()
@@ -122,6 +125,24 @@ class StereoVisionNode:
         self.checkCameraStatusThread.join()
         self.stereo_cam.shutdown()
 
+    def startTouch(self):
+        self.stereo_cam.startTouch()
+
+    def startVision(self):
+        self.stereo_cam.startVision()
+
+    def change_modality(self, request):
+        result = True
+        if request.modality == "touch":
+            rospy.loginfo("Modality changed to TOUCH")
+            self.startTouch()
+        elif request.modality == "vision":
+            rospy.loginfo("Modality changed to VISION")
+            self.startVision()
+        else:
+            rospy.logwarn("Modality change error: " + request.modality + " is not recognised" )
+            result = False
+        return ChangeModalityResponse(result)
 
 def main():
     stereoNode = StereoVisionNode()

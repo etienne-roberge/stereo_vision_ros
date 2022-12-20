@@ -74,10 +74,10 @@ class ArducamManager:
             ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b01111111)
 
             # Darker
-            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00000000)
-            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00000000)
-            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b00000000)
-            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b00000111)
+            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00000000)
+            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00000000)
+            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b00000000)
+            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b00000111)
             #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b00000000)
 
             # Brighter
@@ -153,3 +153,15 @@ class ArducamManager:
             return imgL, imgR
         else:
             return None, None
+
+    def startTouch(self):
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00000000)
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00000000)
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b00000000)
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b00000111)
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b01111111)
+
+    def startVision(self):
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b11111111)
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b11111111)
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b01111111)

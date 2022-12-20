@@ -14,9 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate services in the 'srv' folder
  add_service_files(
    FILES
-   WriteReg.srv
-   ReadReg.srv
-   Capture.srv
+   ChangeModality.srv
  )
 
 ## Generate added messages and services with any dependencies listed here
@@ -26,10 +24,6 @@ find_package(catkin REQUIRED COMPONENTS
  )
 
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES arducam_usb2_ros
-#  CATKIN_DEPENDS rospy
-#  DEPENDS system_lib
 )
 
 include_directories(
