@@ -11,6 +11,7 @@ import threading
 import tf
 
 from arducam_manager import ArducamManager
+from led_manager import LEDManager
 from stereo_vision_ros.srv import ChangeModality, ChangeModalityResponse
 
 CAMERA_NAME = 'stereo_vision_camera'
@@ -65,6 +66,8 @@ class StereoVisionNode:
         self.checkCameraStatusThread = threading.Thread(target=self.checkCameraStatus)
         self.checkCameraStatusThreadRunning = True
         self.checkCameraStatusThread.start()
+
+        self.ledManager = LEDManager()
 
     def readImages(self, br):
         # Read image from camera
@@ -124,12 +127,15 @@ class StereoVisionNode:
         self.checkCameraStatusThreadRunning = False
         self.checkCameraStatusThread.join()
         self.stereo_cam.shutdown()
+        self.ledManager.shutdown()
 
     def startTouch(self):
         self.stereo_cam.startTouch()
+        self.ledManager.startTouch()
 
     def startVision(self):
         self.stereo_cam.startVision()
+        self.ledManager.startVision()
 
     def change_modality(self, request):
         result = True
