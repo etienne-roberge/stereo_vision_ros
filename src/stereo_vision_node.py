@@ -24,6 +24,8 @@ class StereoVisionNode:
         self.timeFpsNow = time.time()
         self.seqFps = 0
 
+        self.flagLowFPS = False
+
         rospy.init_node('{}_node'.format(CAMERA_NAME), argv=sys.argv)
 
         self.config_file = rospy.get_param('~config_file',
@@ -118,6 +120,11 @@ class StereoVisionNode:
                     rospy.logerr("No data received from camera!")
                 elif fps < 5:
                     rospy.logwarn("FPS is lower than 5...")
+                    if not self.flagLowFPS: self.flagLowFPS = True
+                elif self.flagLowFPS:
+                    rospy.loginfo("FPS back to normal")
+                    self.flagLowFPS = False
+
                 self.seqFps = self.seq
                 self.timeFpsStart = self.timeFpsNow
 

@@ -2,6 +2,7 @@ import time
 
 import serial
 import threading
+import rospy
 
 class LEDManager:
     def __init__(self):
@@ -11,7 +12,7 @@ class LEDManager:
         self.startTouchFlag = False
         self.startVisionFlag = False
 
-        self.serPort = serial.Serial("/dev/ttyUSB0")
+        self.serPort = None
         self.startArduinoThread()
 
 
@@ -21,6 +22,13 @@ class LEDManager:
         self.arduinoThread.start()
 
     def arduinoLoop(self):
+
+        try:
+            self.serPort = serial.Serial("/dev/ttyUSB0")
+        except:
+            rospy.logfatal("No LED controller found!")
+            self.running = False
+
         while self.running:
             if self.startTouchFlag:
                 self.serPort.write("startTouch\n".encode())
@@ -33,9 +41,11 @@ class LEDManager:
         self.running = False
 
     def shutdown(self):
-        self.running = False
-        self.arduinoThread.join()
-        self.serPort.close()
+        if self.running:
+            self.running = False
+            self.arduinoThread.join()
+            self.serPort.write("stop\n".encode())
+            self.serPort.close()
 
     def startTouch(self):
         self.startTouchFlag = True

@@ -29,23 +29,13 @@ def callback(data):
     cv2.imshow("ArduCam Demo",image)
     cv2.waitKey(10)
     
-def listener(index):
-
-    # In ROS, nodes are uniquely named. If two nodes with the same
-    # node are launched, the previous one is kicked off. The
-    # anonymous=True flag means that rospy will choose a unique
-    # name for our 'listener' node so that multiple listeners can
-    # run simultaneously.
-    
+def listener(camera):
     rospy.init_node('listener', anonymous=True)
-
-    rospy.Subscriber("/stereo_vision/left/image_raw".format(index), Image, callback)
-
-    # spin() simply keeps python from exiting until this node is stopped
+    rospy.Subscriber("/stereo_vision/"+camera+"/image_raw", Image, callback)
     rospy.spin()
 
 if __name__ == '__main__':
-    index = 0
+    camera = "left"
     if len(sys.argv) ==  2:
-        index = int(sys.argv[1])
-    listener(index)
+        camera = str(sys.argv[1])
+    listener(camera)
