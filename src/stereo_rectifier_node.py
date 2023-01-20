@@ -76,6 +76,7 @@ class DepthManager():
                                                                          cv2.CV_32FC1)
             self.cameraInfoRightFlag = True
 
+
 if __name__ == '__main__':
     dm = DepthManager()
     rospy.spin()
