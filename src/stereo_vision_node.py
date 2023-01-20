@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+
+#ROS_NAMESPACE=stereo_vision rosrun stereo_image_proc stereo_image_proc
+
 import rospy
 import sys
 from sensor_msgs.msg import CameraInfo, Image

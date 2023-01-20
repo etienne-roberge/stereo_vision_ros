@@ -74,15 +74,15 @@ class ArducamManager:
             ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b01111111)
 
             # Darker
-            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00000000)
-            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00000000)
-            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b00000000)
-            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b00000111)
+            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00000000)
+            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00000000)
+            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b00000000)
+            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b00000111)
             #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b00000000)
 
             # Brighter
-            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00011000)
-            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00111100)
+            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00011000)
+            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00111100)
         else:
             rospy.logfatal("open fail,rtn_val = " + str(ret))
             exit(1)
@@ -142,10 +142,12 @@ class ArducamManager:
             # split stereo images
             imgWidth = image.shape[1] // 2
             imgHeight = image.shape[0]
-            hRemove = 100
-            wRemove = 150
-            left = image[hRemove:imgHeight-hRemove, wRemove:imgWidth-wRemove, :]
-            right = image[hRemove:imgHeight-hRemove, imgWidth+wRemove:(imgWidth*2)-wRemove, :]
+            #hRemove = 100
+            #wRemove = 150
+            #left = image[hRemove:imgHeight-hRemove, wRemove:imgWidth-wRemove, :]
+            #right = image[hRemove:imgHeight-hRemove, imgWidth+wRemove:(imgWidth*2)-wRemove, :]
+            left = image[:imgHeight, :imgWidth, :]
+            right = image[:imgHeight, imgWidth:, :]
             imgL = copy.copy(left)
             imgR = copy.copy(right)
 
