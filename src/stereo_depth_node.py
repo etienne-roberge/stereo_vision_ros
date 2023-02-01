@@ -56,11 +56,16 @@ class DisparityGenerator():
             if self.rectifiedLeftFlag and self.rectifiedRightFlag and self.cameraInfoLeftFlag and self.cameraInfoRightFlag:
 
                 disparity_map = self.matchers.computeFilteredDisparityMap(self.rectifiedLeft, self.rectifiedRight)
+
                 self.model.fromCameraInfo(left_msg=self.cameraInfoLeft, right_msg=self.cameraInfoRight)
                 points = cv2.reprojectImageTo3D(disparity_map, self.model.Q)
                 rgb = cv2.cvtColor(self.rectifiedLeft, cv2.COLOR_BGR2RGB)
 
+                points = points[100:-100,100:-100,:]
+                rgb = rgb[100:-100, 100:-100, :]
+
                 mask = disparity_map > disparity_map.min()
+                mask = mask[100:-100, 100:-100]
                 out_points = points[mask]
                 out_colors = rgb[mask]
                 #test open3d
@@ -72,9 +77,9 @@ class DisparityGenerator():
                 points = np.asarray(pcd.points)
                 pcd_sel = pcd.select_by_index(np.where(points[:, 2] < 0.5)[0])
 
-                #blur_pcd = pcd_sel.voxel_down_sample(voxel_size=0.001)
+                blur_pcd = pcd_sel.voxel_down_sample(voxel_size=0.002)
                 print('[INFO] Point cloud blurred')
-                filtered_pcd, ind1 = pcd_sel.remove_statistical_outlier(nb_neighbors=20, std_ratio=0.5)
+                filtered_pcd, ind1 = blur_pcd.remove_statistical_outlier(nb_neighbors=20, std_ratio=0.5)
                 print('[INFO] Point cloud filtered')
                 #double_filtered_pcd, ind2 = filtered_pcd.remove_radius_outlier(nb_points=8, radius=0.03)
                 #print('[INFO] Point cloud double filtered')

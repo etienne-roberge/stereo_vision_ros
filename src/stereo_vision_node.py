@@ -76,7 +76,7 @@ class StereoVisionNode:
 
     def readImages(self, br):
         # Read image from camera
-        img_left, img_right = self.stereo_cam.readImages()
+        img_right, img_left = self.stereo_cam.readImages()
 
         if img_left is not None and img_right is not None:
             timeNow = rospy.Time.now()
@@ -141,11 +141,11 @@ class StereoVisionNode:
 
     def startTouch(self):
         self.stereo_cam.startTouch()
-        self.ledManager.startTouch()
+        #self.ledManager.startTouch()
 
     def startVision(self):
         self.stereo_cam.startVision()
-        self.ledManager.startVision()
+        #self.ledManager.startVision()
 
     def change_modality(self, request):
         result = True

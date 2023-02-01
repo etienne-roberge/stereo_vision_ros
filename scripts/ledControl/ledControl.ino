@@ -23,7 +23,7 @@ void setup() {
 
   intStrip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   intStrip.show();            // Turn OFF all pixels ASAP
-  intStrip.setBrightness(50); // Set BRIGHTNESS to about 1/5 (max = 255)
+  intStrip.setBrightness(200); // Set BRIGHTNESS to about 1/5 (max = 255)
   extStrip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   extStrip.show();            // Turn OFF all pixels ASAP
   extStrip.setBrightness(50); // Set BRIGHTNESS to about 1/5 (max = 255)
