@@ -93,7 +93,7 @@ def rectifyStereoImage(pair):
 
 class Matchers:
     wls_lambda = 8000.0
-    wls_sigma = 1.5
+    wls_sigma = 2.0
 
     def __init__(self, method='SGBM', filtered=True, verbose=True,
                  min_disp=0,
@@ -188,7 +188,7 @@ class Matchers:
         left_disp, right_disp = self.__computeFeaturesMatching(imL, imR)
         filtered_disp = self.__filterDisparity(imL, imR, left_disp, right_disp)
         filtered_disp_vis = cv2.ximgproc.getDisparityVis(filtered_disp)
-        return filtered_disp_vis
+        return filtered_disp
 
     def getConfidenceMap(self):
         """ Compute disparity map """

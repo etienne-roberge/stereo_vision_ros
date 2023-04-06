@@ -67,22 +67,15 @@ class ArducamManager:
 
             ArducamSDK.Py_ArduCam_registerCtrls(self.handle, config.controls, config.controls_length)
 
-            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3503, 0b00000111)
+            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3503, 0b00000000)
 
-            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b11111111)
-            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b11111111)
-            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b01111111)
-
-            # Darker
-            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00000000)
-            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00000000)
-            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b00000000)
-            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b00000111)
-            #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b00000000)
-
-            # Brighter
-            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00011000)
-            ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00111100)
+            # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b00001111)
+            # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b00001111)
+            # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b00001111)
+            #
+            # # Brighter
+            # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00000000)
+            # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00000000)
         else:
             rospy.logfatal("open fail,rtn_val = " + str(ret))
             exit(1)
@@ -137,17 +130,15 @@ class ArducamManager:
                 exit(1)
 
             image = convert_image(data, rtn_cfg, self.color_mode)
-            image = cv2.resize(image, (1920, 720))
+            image = cv2.resize(image, (1440, 480))
 
             # split stereo images
             imgWidth = image.shape[1] // 2
             imgHeight = image.shape[0]
-            #hRemove = 100
-            #wRemove = 150
-            #left = image[hRemove:imgHeight-hRemove, wRemove:imgWidth-wRemove, :]
-            #right = image[hRemove:imgHeight-hRemove, imgWidth+wRemove:(imgWidth*2)-wRemove, :]
             left = image[:imgHeight, :imgWidth, :]
             right = image[:imgHeight, imgWidth:, :]
+            #left = image[:imgHeight, 100:imgWidth, :]
+            #right = image[:imgHeight, imgWidth:image.shape[1]-100z, :]
             imgL = copy.copy(left)
             imgR = copy.copy(right)
 
@@ -157,13 +148,20 @@ class ArducamManager:
             return None, None
 
     def startTouch(self):
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3503, 0b00000111)
         ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00000000)
         ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00000000)
         ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b00000000)
-        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b00000111)
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b00011000)
         ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b01111111)
 
     def startVision(self):
-        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b11111111)
-        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b11111111)
-        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b01111111)
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3503, 0b00000000)
+
+        #
+        # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00000000)
+        # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00000000)
+        #
+        # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b11111111)
+        # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b11111111)
+        # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b01111111)

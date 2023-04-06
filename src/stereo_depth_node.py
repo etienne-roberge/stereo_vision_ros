@@ -55,20 +55,29 @@ class DisparityGenerator():
         while self.running:
             if self.rectifiedLeftFlag and self.rectifiedRightFlag and self.cameraInfoLeftFlag and self.cameraInfoRightFlag:
 
+                self.rectifiedLeft = cv2.bilateralFilter(self.rectifiedLeft, 7, 75, 75)
+                self.rectifiedRight = cv2.bilateralFilter(self.rectifiedRight, 7, 75, 75)
                 disparity_map = self.matchers.computeFilteredDisparityMap(self.rectifiedLeft, self.rectifiedRight)
 
                 self.model.fromCameraInfo(left_msg=self.cameraInfoLeft, right_msg=self.cameraInfoRight)
-                points = cv2.reprojectImageTo3D(disparity_map, self.model.Q)
+
+
+                disparityF = disparity_map.astype(float)
+                disparityF = disparityF/16.0
+                disparityU = disparityF.astype(np.int16)
+
+
+                points = cv2.reprojectImageTo3D(disparityU, self.model.Q)
+
+                points[:, :, 2] = cv2.GaussianBlur(points[:, :, 2], (7, 7), 0)
                 rgb = cv2.cvtColor(self.rectifiedLeft, cv2.COLOR_BGR2RGB)
 
-                points = points[100:-100,100:-100,:]
-                rgb = rgb[100:-100, 100:-100, :]
 
-                mask = disparity_map > disparity_map.min()
-                mask = mask[100:-100, 100:-100]
+                mask = disparity_map > 0
+
                 out_points = points[mask]
                 out_colors = rgb[mask]
-                #test open3d
+
                 pcd = o3d.geometry.PointCloud()
                 pcd.points = o3d.utility.Vector3dVector(out_points)
                 norm_colors = out_colors / 255.0
@@ -78,17 +87,13 @@ class DisparityGenerator():
                 pcd_sel = pcd.select_by_index(np.where(points[:, 2] < 0.5)[0])
 
                 blur_pcd = pcd_sel.voxel_down_sample(voxel_size=0.002)
-                print('[INFO] Point cloud blurred')
                 filtered_pcd, ind1 = blur_pcd.remove_statistical_outlier(nb_neighbors=20, std_ratio=0.5)
-                print('[INFO] Point cloud filtered')
-                #double_filtered_pcd, ind2 = filtered_pcd.remove_radius_outlier(nb_points=8, radius=0.03)
-                #print('[INFO] Point cloud double filtered')
-                #final_pcd = stereovision.sphere_crop_ply(double_filtered_pcd, radius=500)
 
                 rospc = orh.o3dpc_to_rospc(filtered_pcd)
                 rospc.header.frame_id = "map"
                 rospc.header.stamp = rospy.Time.now()
                 self.pub_point.publish(rospc)
+                self.pub.publish(self.bridge.cv2_to_imgmsg(disparity_map, encoding="passthrough"))
 
                 self.rectifiedLeftFlag = False
                 self.rectifiedRightFlag = False

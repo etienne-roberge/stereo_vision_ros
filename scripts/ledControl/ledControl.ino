@@ -4,7 +4,7 @@
 #endif
 
 #define INT_LED_PIN    10
-#define EXT_LED_PIN    11
+#define EXT_LED_PIN    9
 
 #define INT_LED_COUNT 60 //pour vrai je sais pas faudrait compter
 #define EXT_LED_COUNT 60 //pour vrai je sais pas faudrait compter
@@ -12,6 +12,9 @@
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel intStrip(INT_LED_COUNT, INT_LED_PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel extStrip(EXT_LED_COUNT, EXT_LED_PIN, NEO_GRB + NEO_KHZ800);
+
+bool touch = false;
+bool altern = false;
 
 void setup() {
   // These lines are specifically to support the Adafruit Trinket 5V 16 MHz.
@@ -41,62 +44,72 @@ void loop() {
     incomingMsg = Serial.readString();
   }
 
-  if(incomingMsg == "startTouch\n")
+  if(incomingMsg == "t\n")
   {
-    startInternalLight(true);
-    startExternalLight(false);
+    touch = true;
   }
-  else if(incomingMsg == "startVision\n")
+  else if(incomingMsg == "s\n")
   {
-    startInternalLight(false);
-    startExternalLight(true);
+    touch = false;
   }
-  else if(incomingMsg == "stop\n")
-  {
-    startInternalLight(false);
-    startExternalLight(false);
-  }
+
+  startInternalLight();
   delay(100);
 }
 
-void startInternalLight(bool start) {
-  if(start)
+void startInternalLight() {
+  if(touch)
   {
-    for(int i=0; i<10; i++) { 
-      intStrip.setPixelColor(i, intStrip.Color(255,0,0));      
-      intStrip.show();                                                 
+    if(altern)
+    {
+      for(int i=8; i<15; i++) { 
+        intStrip.setPixelColor(i, intStrip.Color(255,0,0));                                                      
+      }
+      for(int i=24; i<31; i++) { 
+        intStrip.setPixelColor(i, intStrip.Color(0,0,150));                                                      
+      }
+      for(int i=0; i<7; i++) { 
+        intStrip.setPixelColor(i, intStrip.Color(0,0,0));                                                      
+      }
+      for(int i=16; i<23; i++) { 
+        intStrip.setPixelColor(i, intStrip.Color(0,0,0));  
+      }
+      /*for(int i=0; i<32; i++) { 
+        intStrip.setPixelColor(i, intStrip.Color(0,0,90));                                                      
+      }*/
+      intStrip.show(); 
+      delay(200);
+      Serial.println("x");                                           
     }
-    for(int i=10; i<20; i++) { 
-      intStrip.setPixelColor(i, intStrip.Color(0,255,0));      
-      intStrip.show();                                                 
+    else
+    {
+      for(int i=8; i<15; i++) { 
+        intStrip.setPixelColor(i, intStrip.Color(0,0,0));                                                      
+      }
+      for(int i=24; i<31; i++) { 
+        intStrip.setPixelColor(i, intStrip.Color(0,0,0));                                                      
+      }
+      for(int i=0; i<7; i++) { 
+        intStrip.setPixelColor(i, intStrip.Color(255,0,0));                                                      
+      }
+      for(int i=16; i<23; i++) { 
+        intStrip.setPixelColor(i, intStrip.Color(0,0,150));  
+      }
+      /*  
+            for(int i=0; i<32; i++) { 
+        intStrip.setPixelColor(i, intStrip.Color(200,0,0));                                                      
+      }*/
+      intStrip.show(); 
+      delay(200);
+      Serial.println("y");        
     }
-    for(int i=20; i<30; i++) { 
-      intStrip.setPixelColor(i, intStrip.Color(0,0,255));      
-      intStrip.show();                                                 
-    }
+    altern = !altern;
   }
   else
   {
     for(int i=0; i<intStrip.numPixels(); i++) { 
       intStrip.setPixelColor(i, intStrip.Color(0,0,0));      
       intStrip.show();                                                
-    }
-  }
-}
-
-void startExternalLight(bool start) {
-  if(start)
-  {
-    for(int i=0; i<extStrip.numPixels(); i++) { 
-      extStrip.setPixelColor(i, extStrip.Color(255,255,255));      
-      extStrip.show();                                                 
-    }
-  }
-  else
-  {
-    for(int i=0; i<extStrip.numPixels(); i++) { 
-      extStrip.setPixelColor(i, extStrip.Color(0,0,0));      
-      extStrip.show();                                                
     }
   }
 }

@@ -141,11 +141,11 @@ class StereoVisionNode:
 
     def startTouch(self):
         self.stereo_cam.startTouch()
-        #self.ledManager.startTouch()
+        self.ledManager.startTouch()
 
     def startVision(self):
         self.stereo_cam.startVision()
-        #self.ledManager.startVision()
+        self.ledManager.startVision()
 
     def change_modality(self, request):
         result = True
