@@ -68,14 +68,13 @@ class ArducamManager:
             ArducamSDK.Py_ArduCam_registerCtrls(self.handle, config.controls, config.controls_length)
 
             ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3503, 0b00000000)
-
-            # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b00001111)
-            # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b00001111)
-            # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b00001111)
-            #
-            # # Brighter
+            # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3503, 0b00000111)
             # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00000000)
             # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00000000)
+            #
+            # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b11111111)
+            # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b11111111)
+            # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b01111111)
         else:
             rospy.logfatal("open fail,rtn_val = " + str(ret))
             exit(1)
@@ -152,16 +151,16 @@ class ArducamManager:
         ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00000000)
         ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00000000)
         ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b00000000)
-        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b00011000)
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b00001000)
         ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b01111111)
 
     def startVision(self):
-        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3503, 0b00000000)
+        #ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3503, 0b00000000)
 
-        #
-        # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00000000)
-        # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00000000)
-        #
-        # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b11111111)
-        # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b11111111)
-        # ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b01111111)
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3503, 0b00000111)
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350A, 0b00000000)
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x350B, 0b00000000)
+
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3500, 0b11111111)
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3501, 0b11111111)
+        ArducamSDK.Py_ArduCam_writeSensorReg(self.handle, 0x3502, 0b01111111)

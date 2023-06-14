@@ -6,6 +6,7 @@
 import rospy
 import sys
 from sensor_msgs.msg import CameraInfo, Image
+from std_msgs.msg import String
 from camera_info_manager import CameraInfoManager
 from cv_bridge import CvBridge, CvBridgeError
 import time
@@ -63,6 +64,7 @@ class StereoVisionNode:
         self.camera_publisher_left = rospy.Publisher("left/camera_info", CameraInfo,
                                                      queue_size=1)
 
+        self.modality_publisher = rospy.Publisher("modality", String, queue_size=1)
         self.service_change_modality = rospy.Service('change_modality', ChangeModality, self.change_modality)
 
         self.seq = 0
@@ -152,9 +154,11 @@ class StereoVisionNode:
         if request.modality == "touch":
             rospy.loginfo("Modality changed to TOUCH")
             self.startTouch()
+            self.modality_publisher.publish("touch")
         elif request.modality == "vision":
             rospy.loginfo("Modality changed to VISION")
             self.startVision()
+            self.modality_publisher.publish("vision")
         else:
             rospy.logwarn("Modality change error: " + request.modality + " is not recognised" )
             result = False

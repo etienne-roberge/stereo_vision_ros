@@ -11,6 +11,8 @@ import threading
 import time
 import open3d as o3d
 
+from stereo_vision_ros.srv import GiveDepth, GiveDepthResponse
+
 from open3d_ros_helper import open3d_ros_helper as orh
 
 def bgr_from_imgmsg(msg):
@@ -39,10 +41,14 @@ class DisparityGenerator():
 
         self.bridge = CvBridge()
 
+        self.points3d = []
+
         self.model = StereoCameraModel()
 
         self.running = True
         self.disparityPublisherThread = threading.Thread(target=self.disparityDepthPublisher)
+
+        self.serviceGiveDepth = rospy.Service('give_depth', GiveDepth, self.give_depth)
 
         rospy.init_node('DisparityGenerator', anonymous=True)
         rospy.Subscriber("/stereo_vision/left/image_rect", Image, self.callbackImageLeftRectified)
@@ -50,6 +56,9 @@ class DisparityGenerator():
         rospy.Subscriber("/stereo_vision/left/camera_info", CameraInfo, self.callbackLeftCameraInfo)
         rospy.Subscriber("/stereo_vision/right/camera_info", CameraInfo, self.callbackRightCameraInfo)
 
+    def give_depth(self, request):
+        result = [0,0,0]
+        return GiveDepthResponse(self.points3d[request.x, request.y])
 
     def disparityDepthPublisher(self):
         while self.running:
@@ -69,12 +78,17 @@ class DisparityGenerator():
 
                 points = cv2.reprojectImageTo3D(disparityU, self.model.Q)
 
+
                 points[:, :, 2] = cv2.GaussianBlur(points[:, :, 2], (7, 7), 0)
                 rgb = cv2.cvtColor(self.rectifiedLeft, cv2.COLOR_BGR2RGB)
 
+                points = points[100:-100, 200:-200, :]
+                rgb = rgb[100:-100, 200:-200, :]
+                disparity_map = disparity_map[100:-100, 200:-200]
 
                 mask = disparity_map > 0
 
+                self.points3d = points
                 out_points = points[mask]
                 out_colors = rgb[mask]
 

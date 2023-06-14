@@ -6,7 +6,7 @@ from sensor_msgs.msg import CompressedImage, CameraInfo, Image
 from cv_bridge import CvBridge
 import threading
 import time
-from std_msgs.msg import String
+from std_msgs.msg import String, Int32
 import scipy, scipy.fftpack
 import math
 import pickle
@@ -73,27 +73,39 @@ class TouchGenerator():
         self.dy = None
         self.dy_r = None
 
+        self.isTouchEnabled = False
+
         self.pubDx_L = rospy.Publisher('/stereo_vision/dx_l', Image, queue_size=100)
         self.pubDy_L = rospy.Publisher('/stereo_vision/dy_l', Image, queue_size=100)
         self.pubDx_R = rospy.Publisher('/stereo_vision/dx_r', Image, queue_size=100)
         self.pubDy_R = rospy.Publisher('/stereo_vision/dy_r', Image, queue_size=100)
 
+        self.pubTouchDetected = rospy.Publisher('/stereo_vision/touchDetected', Int32, queue_size=100)
+
         rospy.init_node('DisparityGenerator', anonymous=True)
         rospy.Subscriber("/stereo_vision/left/image_rect", Image, self.callbackImageLeftRectified)
         rospy.Subscriber("/stereo_vision/right/image_rect", Image, self.callbackImageRightRectified)
         rospy.Subscriber("/stereo_vision/lights", String, self.callbackLights)
+        rospy.Subscriber("/stereo_vision/modality", String, self.callbackModality)
 
 
     def touchAnalyser(self):
         # define range of blue color in HSV
-        lower_blue = np.array([95, 30, 30])
-        upper_blue = np.array([135, 255, 255])
-        lower_r = np.array([140, 30, 30])
-        upper_r = np.array([179, 255, 255])
-        lower_r2 = np.array([0, 35, 35])
-        upper_r2 = np.array([30, 255, 255])
+        path = rospy.get_param('~hsvValues', '')
+        file = open(path, 'rb')
+        lower_blue,upper_blue,lower_r,upper_r,lower_r2,upper_r2 = pickle.load(file)
+        file.close()
+        # lower_blue = np.array([95, 30, 30])
+        # upper_blue = np.array([135, 255, 255])
+        # lower_r = np.array([140, 30, 30])
+        # upper_r = np.array([179, 255, 255])
+        # lower_r2 = np.array([0, 35, 35])
+        # upper_r2 = np.array([30, 255, 255])
         while self.running:
             if self.lightsFlag:
+                if not self.isTouchEnabled:
+                    time.sleep(0.01)
+                    continue
                 if self.dx is None:
                     continue
                 if self.dy is None:
@@ -159,6 +171,7 @@ class TouchGenerator():
                 #testRGAUCHE = poisson_reconstruct(dx, dy, red.astype("float"))
                 testR1[testR1<=0] = 0
                 cv2.imshow("norm_normal", testR1)
+                self.pubTouchDetected.publish(len(testR1[testR1>0.1]))
                 filehandler = open("pickleTest_normal", 'wb')
                 pickle.dump(testR1, filehandler)
 
@@ -366,6 +379,12 @@ class TouchGenerator():
             self.pubDy_L.publish(image_msg)
             self.pubDy_R.publish(image_msg2)
         self.lightsFlag = True
+
+    def callbackModality(self, data):
+        if data.data == "touch":
+            self.isTouchEnabled = True
+        else:
+            self.isTouchEnabled = False
 
 if __name__ == '__main__':
     dm = TouchGenerator()
